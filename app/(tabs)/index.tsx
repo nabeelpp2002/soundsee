@@ -1,98 +1,208 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Alert,
+  Animated,
+  Easing
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+const SoundSeeApp = () => {
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingStatus] = useState(new Animated.Value(0));
 
-export default function HomeScreen() {
+  const startRecording = () => {
+    setIsRecording(true);
+    // Animation for recording button
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(recordingStatus, {
+          toValue: 1,
+          duration: 1000,
+          easing: Easing.linear,
+          useNativeDriver: true
+        }),
+        Animated.timing(recordingStatus, {
+          toValue: 0,
+          duration: 1000,
+          easing: Easing.linear,
+          useNativeDriver: true
+        })
+      ])
+    ).start();
+    
+    // Here you would integrate with your audio recording API
+    Alert.alert('Recording Started', 'SoundSee is now listening to your surroundings');
+  };
+
+  const stopRecording = () => {
+    setIsRecording(false);
+    recordingStatus.stopAnimation();
+    
+    // Here you would stop the audio recording and process with your ML model
+    Alert.alert('Recording Stopped', 'Analyzing the recorded sounds...');
+  };
+
+  const pulseAnimation = recordingStatus.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.2]
+  });
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
+    <View style={styles.container}>
+      <View style={styles.header}>
         <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+          source={{ uri: 'https://placehold.co/400x400/6a5acd/white?text=SoundSee' }}
+          style={styles.logo}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+        <Text style={styles.title}>SoundSee</Text>
+        <Text style={styles.subtitle}>Hear the world through AI</Text>
+      </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <View style={styles.welcomeSection}>
+        <Text style={styles.welcomeTitle}>Welcome to SoundSee</Text>
+        
+      </View>
+
+      <View style={styles.recordingSection}>
+        <Animated.View style={[styles.recordButtonContainer, { transform: [{ scale: pulseAnimation }] }]}>
+          <TouchableOpacity
+            style={[styles.recordButton, isRecording && styles.recordingButton]}
+            onPress={isRecording ? stopRecording : startRecording}
+          >
+            <Ionicons 
+              name={isRecording ? "stop" : "mic"} 
+              size={40} 
+              color="white" 
+            />
+          </TouchableOpacity>
+        </Animated.View>
+        <Text style={styles.recordText}>
+          {isRecording ? 'Listening for sounds...' : 'Tap to identify surrounding sounds'}
+        </Text>
+      </View>
+
+      <View style={styles.infoSection}>
+        <Text style={styles.infoTitle}>How It Works</Text>
+        <View style={styles.infoItem}>
+          <Ionicons name="mic-outline" size={24} color="#6a5acd" />
+          <Text style={styles.infoText}>Record surrounding sounds</Text>
+        </View>
+        <View style={styles.infoItem}>
+          <Ionicons name="analytics-outline" size={24} color="#6a5acd" />
+          <Text style={styles.infoText}>AI analyzes the audio</Text>
+        </View>
+        <View style={styles.infoItem}>
+          <Ionicons name="notifications-outline" size={24} color="#6a5acd" />
+          <Text style={styles.infoText}>Get visual notifications</Text>
+        </View>
+      </View>
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  header: {
+    alignItems: 'center',
+    paddingVertical: 30,
+    backgroundColor: '#6a5acd',
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 15,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 5,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
+  welcomeSection: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  welcomeTitle: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 10,
+  },
+  welcomeText: {
+    fontSize: 16,
+    color: '#555',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  recordingSection: {
+    alignItems: 'center',
+    padding: 20,
+    marginVertical: 10,
+  },
+  recordButtonContainer: {
+    marginBottom: 15,
+  },
+  recordButton: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#6a5acd',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+  },
+  recordingButton: {
+    backgroundColor: '#e74c3c',
+  },
+  recordText: {
+    fontSize: 16,
+    color: '#555',
+    textAlign: 'center',
+  },
+  infoSection: {
+    padding: 20,
+    backgroundColor: 'white',
+    margin: 10,
+    borderRadius: 15,
+    elevation: 2,
+  },
+  infoTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  infoItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    marginBottom: 15,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  infoText: {
+    fontSize: 16,
+    color: '#555',
+    marginLeft: 15,
   },
 });
+
+export default SoundSeeApp;
