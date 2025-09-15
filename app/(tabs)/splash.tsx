@@ -58,7 +58,7 @@ export default function SplashScreen() {
 
     return (
         <LinearGradient
-            colors={['#cc0000', '#990000', '#660000']}
+            colors={['#6a5acd', '#7a6ee0', '#8477f0']}
             style={styles.container}
         >
             <Animated.View 
@@ -71,8 +71,8 @@ export default function SplashScreen() {
                 ]}
             >
                 <View style={styles.titleContainer}>
-                    <Text style={styles.text}>Sound</Text>
-                    <View style={styles.dot} />
+                    <Text style={styles.text}>Sound </Text>
+
                     <Text style={styles.text}>See</Text>
                 </View>
                 

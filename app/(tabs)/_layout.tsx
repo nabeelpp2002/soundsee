@@ -69,7 +69,7 @@ export default function TabLayout() {
         />
         {[
         "splash",
-        "SignIn",
+        //"SignIn",
         "SignUp",
       ].map((screen) => (
         <Tabs.Screen
